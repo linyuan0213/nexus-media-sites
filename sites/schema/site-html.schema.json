@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus-media/schema/site-html.schema.json",
+  "title": "HTML 站点定义 Schema",
+  "description": "通过 HTML 抓取进行搜索的站点定义格式",
+  "type": "object",
+  "required": ["id", "name", "domain", "html"],
+  "properties": {
+    "id": {"type": "string", "description": "站点唯一标识符"},
+    "name": {"type": "string", "description": "站点显示名称"},
+    "domain": {"type": "string", "description": "主域名，用于 URL 匹配"},
+    "domain_aliases": {"type": "array", "items": {"type": "string"}, "description": "域名别名列表"},
+    "encoding": {"type": "string", "default": "UTF-8", "description": "页面编码"},
+    "public": {"type": "boolean", "default": false, "description": "是否公开站点（BT 站）"},
+    "favicon": {"type": "string", "description": "站点图标 URL，为空则自动抓取"},
+    "tid_pattern": {"type": "string", "default": "\\d+", "description": "从 URL 提取种子 ID 的正则表达式"},
+    "detail_page_url": {"type": "string", "description": "种子详情页 URL 模板，如 /detail/{tid}"},
+    "language": {"type": "string", "description": "站点语言过滤"},
+    "download": {"$ref": "site-api.schema.json#/definitions/download_config"},
+    "user_info": {"$ref": "#/definitions/user_info_config"},
+    "html": {
+      "type": "object",
+      "required": ["search", "torrents"],
+      "properties": {
+        "search": {"$ref": "#/definitions/search_config"},
+        "category": {"$ref": "#/definitions/category_config"},
+        "torrents": {"$ref": "#/definitions/torrents_config"},
+        "conf": {"$ref": "#/definitions/conf_config"},
+        "test_connection": {"type": "string", "description": "连通性测试路径"},
+        "browse": {
+          "type": "object",
+          "description": "浏览模式配置，用于非搜索场景获取种子列表",
+          "properties": {
+            "path": {"type": "string"},
+            "params": {"type": "object"},
+            "start": {"type": "integer", "default": 1, "description": "起始页（第 1 页）"},
+            "start_page": {"type": "integer", "default": 0, "description": "起始页偏移（兼容旧写法）"}
+          }
+        },
+        "parser_type": {
+          "type": "string",
+          "enum": ["flat", "nested"],
+          "default": "flat",
+          "description": "解析模式：flat=单层列表，nested=嵌套分组"
+        }
+      }
+    }
+  },
+
+  "definitions": {
+    "search_config": {
+      "type": "object",
+      "required": ["paths"],
+      "properties": {
+        "paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {"type": "string", "description": "搜索路径，{keyword} 占位"},
+              "method": {"enum": ["get", "post"], "default": "get"}
+            },
+            "required": ["path"]
+          }
+        },
+        "params": {
+          "type": "object",
+          "description": "搜索请求参数，{keyword} 占位"
+        },
+        "batch": {
+          "type": "object",
+          "description": "批量搜索配置",
+          "properties": {
+            "delimiter": {"type": "string", "description": "分隔符"},
+            "space_replace": {"type": "string", "description": "空格替换符"}
+          }
+        }
+      }
+    },
+    "category_config": {
+      "type": "object",
+      "properties": {
+        "field": {"type": "string", "description": "分类参数名"},
+        "delimiter": {"type": "string", "description": "分类值分隔符"},
+        "param": {"type": ["object", "string"], "description": "分类 ID 到参数的映射"},
+        "movie": {"type": "array", "items": {"$ref": "#/definitions/category_item"}},
+        "tv": {"type": "array", "items": {"$ref": "#/definitions/category_item"}},
+        "anime": {"type": "array", "items": {"$ref": "#/definitions/category_item"}}
+      }
+    },
+    "category_item": {
+      "type": "object",
+      "properties": {
+        "id": {"type": ["string", "number"]},
+        "cat": {"type": "string", "description": "媒体类型映射值"},
+        "desc": {"type": "string", "description": "分类描述"},
+        "default": {"type": "boolean", "description": "是否默认分类"},
+        "search_field": {"type": "string", "description": "搜索字段名"}
+      }
+    },
+    "torrents_config": {
+      "type": "object",
+      "required": ["fields"],
+      "properties": {
+        "list": {
+          "type": "object",
+          "properties": {
+            "selector": {"type": "string", "description": "列表行的 CSS/XPath 选择器"}
+          }
+        },
+        "browse_list": {
+          "type": "object",
+          "description": "浏览模式列表行选择器",
+          "properties": {
+            "selector": {"type": "string"}
+          }
+        },
+        "browse_fields": {
+          "type": "object",
+          "description": "浏览模式字段解析（结构与 fields 一致）",
+          "properties": {
+            "id": {"$ref": "#/definitions/html_field"},
+            "tid": {"$ref": "#/definitions/html_field"},
+            "title": {"$ref": "#/definitions/html_field"},
+            "details": {"$ref": "#/definitions/html_field"},
+            "download": {"$ref": "#/definitions/html_field"},
+            "size": {"$ref": "#/definitions/html_field"},
+            "seeders": {"$ref": "#/definitions/html_field"},
+            "leechers": {"$ref": "#/definitions/html_field"},
+            "grabs": {"$ref": "#/definitions/html_field"},
+            "date_added": {"$ref": "#/definitions/html_field"},
+            "date_elapsed": {"$ref": "#/definitions/html_field"},
+            "downloadvolumefactor": {"$ref": "#/definitions/html_field"},
+            "uploadvolumefactor": {"$ref": "#/definitions/html_field"}
+          }
+        },
+        "container_xpath": {"type": "string", "description": "nested 模式容器 XPath"},
+        "row_xpath": {"type": "string", "description": "nested 模式行 XPath"},
+        "container_fields": {
+          "type": "object",
+          "description": "nested 模式容器级字段（结构与 fields 一致）",
+          "properties": {
+            "description": {"$ref": "#/definitions/html_field"},
+            "imdbid": {"$ref": "#/definitions/html_field"}
+          }
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "id": {"$ref": "#/definitions/html_field"},
+            "tid": {"$ref": "#/definitions/html_field"},
+            "title": {"$ref": "#/definitions/html_field"},
+            "title_default": {"$ref": "#/definitions/html_field"},
+            "title_optional": {"$ref": "#/definitions/html_field"},
+            "subject": {"$ref": "#/definitions/html_field"},
+            "description": {"$ref": "#/definitions/html_field"},
+            "description_free_forever": {"$ref": "#/definitions/html_field"},
+            "description_normal": {"$ref": "#/definitions/html_field"},
+            "details": {"$ref": "#/definitions/html_field"},
+            "download": {"$ref": "#/definitions/html_field"},
+            "enclosure": {"$ref": "#/definitions/html_field"},
+            "page_url": {"$ref": "#/definitions/html_field"},
+            "poster": {"$ref": "#/definitions/html_field"},
+            "size": {"$ref": "#/definitions/html_field"},
+            "seeders": {"$ref": "#/definitions/html_field"},
+            "leechers": {"$ref": "#/definitions/html_field"},
+            "grabs": {"$ref": "#/definitions/html_field"},
+            "files": {"$ref": "#/definitions/html_field"},
+            "date_elapsed": {"$ref": "#/definitions/html_field"},
+            "date_added": {"$ref": "#/definitions/html_field"},
+            "date": {"$ref": "#/definitions/html_field"},
+            "pubdate": {"$ref": "#/definitions/html_field"},
+            "downloadvolumefactor": {"$ref": "#/definitions/html_field"},
+            "uploadvolumefactor": {"$ref": "#/definitions/html_field"},
+            "free_deadline": {"$ref": "#/definitions/html_field"},
+            "imdbid": {"$ref": "#/definitions/html_field"},
+            "labels": {"$ref": "#/definitions/html_field"},
+            "tags": {"$ref": "#/definitions/html_field"},
+            "category": {"$ref": "#/definitions/html_field"},
+            "csrf": {"$ref": "#/definitions/html_field"},
+            "hr_days": {"$ref": "#/definitions/html_field"},
+            "minimumratio": {"$ref": "#/definitions/html_field"},
+            "minimumseedtime": {"$ref": "#/definitions/html_field"}
+          }
+        }
+      }
+    },
+    "html_field": {
+      "type": "object",
+      "properties": {
+        "selector": {"type": "string", "description": "CSS 选择器"},
+        "xpath": {"type": "string", "description": "XPath 选择器（优先于 selector）"},
+        "attribute": {"type": "string", "description": "提取的属性名，如 href、src"},
+        "text": {"type": ["string", "number"], "description": "Jinja2 模板文本，引用其他字段"},
+        "type": {"type": "string", "description": "字段类型标识"},
+        "value": {"type": ["string", "number", "boolean"], "description": "常量类型的固定值"},
+        "case": {
+          "type": "object",
+          "description": "条件映射：selector 提取的值 → 最终值"
+        },
+        "inline": {"type": "object", "description": "内联图片属性映射"},
+        "contents": {"type": ["integer", "string"], "description": "内容提取索引"},
+        "remove": {"type": "string", "description": "要移除的子元素选择器"},
+        "optional": {"type": "boolean", "description": "是否可选字段"},
+        "default": {"type": ["string", "number", "boolean"], "description": "字段缺失/未命中时的默认值"},
+        "default_value": {"type": ["string", "number"], "description": "字段缺失时的默认值"},
+        "default_value_format": {
+          "type": "string",
+          "description": "计算默认值的格式（如 now、today）"
+        },
+        "index": {"type": "integer", "description": "提取结果序号"},
+        "join": {"type": "string", "description": "多元素提取结果的分隔符"},
+        "if_present": {"type": ["string", "number", "boolean"], "description": "元素存在时的取值，否则用 default"},
+        "replace": {"type": "object", "description": "字符串替换映射表"},
+        "transform": {"type": "string", "description": "值转换（与 API 站点一致）"},
+        "template": {"type": "string", "description": "URL 模板"},
+        "filters": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {"type": "string"},
+              {
+                "type": "object",
+                "properties": {
+                  "name": {"type": "string"},
+                  "args": {"type": ["array", "string"]}
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "conf_config": {
+      "type": "object",
+      "description": "种子属性抓取规则",
+      "properties": {
+        "FREE": {"type": "array", "items": {"type": "string"}},
+        "2XFREE": {"type": "array", "items": {"type": "string"}},
+        "HR": {"type": "array", "items": {"type": "string"}},
+        "PEER_COUNT": {"type": "array", "items": {"type": "string"}},
+        "PUBDATE": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "user_info_config": {
+      "type": "object",
+      "description": "用户信息抓取配置",
+      "properties": {
+        "type": {"type": "string", "description": "用户信息获取方式"},
+        "page": {"type": "string", "description": "用户主页路径"},
+        "brief_page": {"type": "string", "description": "用户简要信息路径（做种/下载统计等）"},
+        "fields": {
+          "type": "object",
+          "description": "通过 CSS 选择器提取的字段",
+          "properties": {
+            "userid": {"$ref": "#/definitions/user_info_field"},
+            "username": {"$ref": "#/definitions/user_info_field"},
+            "upload": {"$ref": "#/definitions/user_info_field"},
+            "download": {"$ref": "#/definitions/user_info_field"},
+            "ratio": {"$ref": "#/definitions/user_info_field"},
+            "bonus": {"$ref": "#/definitions/user_info_field"},
+            "join_at": {"$ref": "#/definitions/user_info_field"},
+            "user_level": {"$ref": "#/definitions/user_info_field"},
+            "seeding": {"$ref": "#/definitions/user_info_field"},
+            "leeching": {"$ref": "#/definitions/user_info_field"}
+          }
+        },
+        "seeding": {
+          "type": "object",
+          "description": "做种信息配置",
+          "properties": {
+            "page": {"type": "string"},
+            "page_start": {"type": "integer", "description": "起始页码（默认 1）"},
+            "method": {"enum": ["GET", "POST"]},
+            "path": {"type": "string"},
+            "list_selector": {"type": "string"},
+            "size_selector": {"type": "string"},
+            "seeders_selector": {"type": "string"},
+            "total_regex": {"type": "string"},
+            "response": {
+              "type": "object",
+              "properties": {
+                "items_key": {"type": "string"},
+                "seeders_field": {"type": "string"},
+                "size_field": {"type": "string"},
+                "total_count_field": {"type": "string"}
+              }
+            },
+            "type": {"type": "string"}
+          }
+        },
+        "bonus_labels": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "自定义魔力值标签名"
+        }
+      }
+    },
+    "user_info_field": {
+      "type": "object",
+      "description": "用户信息字段提取配置",
+      "properties": {
+        "selector": {"type": "string", "description": "CSS 选择器"},
+        "attribute": {"type": "string", "description": "提取的属性名"},
+        "extract": {"type": "string", "description": "提取方式：text / attribute"},
+        "pattern": {"type": "string", "description": "正则提取"},
+        "values": {"type": "object", "description": "值映射表（如等级）"}
+      }
+    }
+  }
+}
