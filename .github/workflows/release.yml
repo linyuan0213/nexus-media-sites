@@ -1,37 +1,51 @@
-name: Release Sites Data
+name: Release Sites Config
 
 on:
   push:
     tags:
-      - 'v*'  # 当推送v开头的tag时触发
-  workflow_dispatch:  # 允许手动触发
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Install uv
       run: pip install uv
-      
-    - name: Install dependencies with uv
+
+    - name: Install dependencies
       run: uv sync
-      
-    - name: Generate sites.dat
-      run: uv run app/generate_dat.py
-      
-    - name: Create Release and Upload Asset
+
+    - name: Validate site configs
+      run: uv run python validate.py
+
+    - name: Pack sites-config.zip
+      run: |
+        cd sites
+        zip -r ../sites-config.zip api html schema
+
+    - name: Upload sites-config.zip as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sites-config
+        path: sites-config.zip
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
-        files: |
-          build/bin/sites.dat
+        files: sites-config.zip
         tag_name: ${{ github.ref_name }}
         generate_release_notes: true
       env:
