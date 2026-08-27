@@ -1,9 +1,10 @@
 [project]
-name = "nas-tools-sites"
+name = "nexus-media-sites"
 version = "1.0.0"
-description = "Nastool 站点配置"
+description = "Nexus Media 站点解析配置（API/HTML 站点定义）"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "jsonschema>=4.26.0",
     "loguru>=0.7.3",
 ]
