@@ -41,7 +41,7 @@ pt:
 
 | 类型 | 判定条件 | 目录 |
 |------|---------|------|
-| **API 站点** | 站点提供搜索 API（如馒头 M-Team、肉肉 Rousi、TorrentLeech） | `sites/api/{id}.json` |
+| **API 站点** | 站点提供搜索 API（如馒头 M-Team、Rousi、TorrentLeech） | `sites/api/{id}.json` |
 | **HTML 站点** | 无 API，需要网页抓取解析（大多数 PT 站） | `sites/html/{id}.json` |
 
 ### 2. 复制同类型模板
