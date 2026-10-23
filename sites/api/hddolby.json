@@ -1,10 +1,10 @@
 {
   "id": "hddolby",
   "name": "高清杜比",
-  "domain": "www.hddolby.com",
+  "domain": "www.uhddolby.com",
   "domain_aliases": [
-    "www.hddolby.com",
-    "api.hddolby.com"
+    "www.uhddolby.com",
+    "api.uhddolby.com"
   ],
   "tid_pattern": "\\d+",
   "detail_page_url": "/details.php?id={tid}",
@@ -12,7 +12,7 @@
   "public": false,
   "language": "zh",
   "api": {
-    "base_url": "https://www.hddolby.com/api/v1",
+    "base_url": "https://www.uhddolby.com/api/v1",
     "auth": {
       "type": "api_key",
       "header_name": "x-api-key",
