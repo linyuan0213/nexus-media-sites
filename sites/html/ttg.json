@@ -2,6 +2,7 @@
   "id": "ttg",
   "name": "听听歌",
   "domain": "https://totheglory.im",
+  "detail_page_url": "/t/{tid}/",
   "encoding": "UTF-8",
   "public": false,
   "html": {
