@@ -130,7 +130,7 @@
       "type": "object",
       "required": ["type"],
       "properties": {
-        "type": {"enum": ["api", "api_chained", "template", "html"]},
+        "type": {"enum": ["api", "api_chained", "api_blob", "template", "html"]},
         "method": {"enum": ["GET", "POST"]},
         "path": {"type": "string", "description": "下载链接路径模板"},
         "body": {"type": "object"},
