@@ -388,6 +388,7 @@
           "token_key": "bearer_token",
           "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
           "spa": {
+            "signer": "piggo",
             "sign_path": "/v1/web/auth/sign",
             "sign_key": "data.sign",
             "base_path": "/v1/web",
@@ -632,6 +633,30 @@
           },
           "user_level": {
             "source": "data.user.class.name"
+          },
+          "upload": {
+            "source": "data.user.stats.uploaded",
+            "type": "size"
+          },
+          "download": {
+            "source": "data.user.stats.downloaded",
+            "type": "size"
+          },
+          "bonus": {
+            "source": "data.user.stats.bonus",
+            "type": "float"
+          },
+          "seeding": {
+            "source": "data.user.stats.seeding",
+            "type": "int"
+          },
+          "leeching": {
+            "source": "data.user.stats.leeching",
+            "type": "int"
+          },
+          "message_unread": {
+            "source": "data.user.mail_unread",
+            "type": "int"
           }
         }
       }
