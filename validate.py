@@ -45,7 +45,7 @@ HTML_FIELD_KEYS = {
 API_FIELD_KEYS = {
     "source", "type", "method", "path", "body", "response_key", "value", "map",
     "transform", "filters", "selector", "attribute", "fields", "domains",
-    "separator", "keep_unknown",
+    "separator", "keep_unknown", "sources", "text_tags", "text",
 }
 
 # 用户信息字段配置允许的键（config_html.py）
