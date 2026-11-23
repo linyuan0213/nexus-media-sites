@@ -81,15 +81,10 @@
           "attribute": "href",
           "filters": [
             {
-              "name": "replace",
-              "args": [
-                "?",
-                ""
-              ]
-            },
-            {
               "name": "querystring",
-              "args": "cat"
+              "args": [
+                "cat"
+              ]
             }
           ]
         },
@@ -125,7 +120,7 @@
           "optional": true
         },
         "date": {
-          "text": "{% if fields['date_elapsed'] or fields['date_added'] %}{{ fields['date_elapsed'] if fields['date_elapsed'] else fields['date_added'] }}{% else %}now{% endif %}"
+          "text": "{{ fields['date_added'] }}"
         },
         "size": {
           "selector": "td:nth-child(5)"
@@ -158,8 +153,6 @@
           }
         },
         "free_deadline": {
-          "default_value": "{% if fields['downloadvolumefactor']==0 %}{{max_time}}{% endif%}",
-          "default_value_format": "%Y-%m-%d %H:%M:%S.%f",
           "selector": "img.pro_free,img.pro_free2up",
           "attribute": "onmouseover",
           "filters": [

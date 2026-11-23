@@ -45,7 +45,9 @@
           "filters": [
             {
               "name": "querystring",
-              "args": "cat"
+              "args": [
+                "cat"
+              ]
             }
           ]
         },
@@ -63,10 +65,6 @@
         "details": {
           "selector": "a[href*=\"details.php?id=\"]",
           "attribute": "href"
-        },
-        "poster": {
-          "selector": "img[data-orig]",
-          "attribute": "data-orig"
         },
         "download": {
           "selector": "a[href*=\"download.php?id=\"]",
@@ -94,8 +92,7 @@
           "optional": true
         },
         "date": {
-          "text": "{% if fields['date_elapsed'] or fields['date_added'] %}{{ fields['date_elapsed'] if fields['date_elapsed'] else fields['date_added'] }}{% else %}now{% endif %}"
-
+          "text": "{{ fields['date_added'] }}"
         },
         "downloadvolumefactor": {
           "case": {
@@ -116,18 +113,13 @@
           }
         },
         "free_deadline": {
-          "default_value": "{% if fields['downloadvolumefactor']==0 %}{{max_time}}{% endif%}",
-          "default_value_format": "%Y-%m-%d %H:%M:%S.%f",
-          "selector": "div > b > span[title]",
-          "attribute": "title"
-
+          "selector": "td:nth-child(2) font span[title]",
+          "attribute": "title",
+          "optional": true
         },
         "tags": {
-          "selector": "div > a.torrents-tag"
-        },
-        "subject": {
-          "selector": "td.embedded:nth-child(2) > div > div[style] > span",
-          "contents": -1
+          "selector": "td:nth-child(2) > table.torrentname > tr > td:nth-child(1) > span",
+          "optional": true
         },
         "description": {
           "selector": "td:nth-child(2) > table.torrentname > tr > td:nth-child(1)",
